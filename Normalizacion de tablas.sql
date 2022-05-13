@@ -68,18 +68,67 @@ create TABLE Clases (
 )
 AUTO_INCREMENT= 1;
 
---Se insertan los cursosque existen y los junto con los alumnos que los cursan
+--No termine de comprender los ejemplos en el curso
 
-INSERT INTO clases (nomclas, idalumn) VALUES (
+/* 1FN 2FN y 3FN
+Primera, Segunda y Tercera forma Normal
+-1 Identificar si existe redundancia en algun campo y separar ese campo en otra tabla.
+-2 Identificar relacionar las las tablas generadas anteriormente con tablas secundarias.
+-3 Separar los datos con dependencias transitivas siempre que sea pertinente.
+https://docs.microsoft.com/es-es/office/troubleshoot/access/database-normalization-description
+De acuerdo a lo anterior propongo otro ejemplo para esta seccion*/
 
+--Se crea La tabla de ejemplo
+
+CREATE TABLE Alumnos(
+    id INT (10) NOT NULL AUTO_INCREMENT,
+    nombre CHAR(30) NOT NULL,
+    direccion CHAR(30),
+    telefono INT(15),
+    clase1 CHAR(20),
+    clase2 CHAR(20),
+    carrera CHAR(20),
+    beca CHAR(20),
+    PRIMARY KEY (id)
 )
+AUTO_INCREMENT= 1;
 
+--Se insertan datos
+insert INTO alumnos(nombre, direccion, telefono, clase1, clase2, carrera, beca) VALUES(
+    "Abel", "La muralla", 124578, "Python", "C", "Programacion", "Deportiva" 
+);
 
-/*3FN (tercera Forma Normal )
--1 Comprueba sependencias transitivas 
-- Los campos que no tienen una dependencia funcional con la tabla se separan
+--Se verifican los DIAGNOSTICS
+SELECT * from alumnos;
 
-Los ejemplos de su uso en el curso me parecieron absurdo e inimplementable en tablas con
-mas de un dato.
-Voy a investigar como resolver la normalizacion de manera mas eficiente*/
+--Se crean tablas para los campos que generan redundancias
+create TABLE carreras (
+    idcarrera INT NOT NULL AUTO_INCREMENT,
+    nomcarrera CHAR(20),
+    PRIMARY KEY (idcarrera)
+)
+--El autoincremental comienza en 2001, como una clave para distinguir la carrera, 
+--me gustaria usar letra y numero
+AUTO_INCREMENT= 2001;
 
+--Se insertan las carreras que existen en la tabla alumnos
+INSERT INTO carreras (nomcarrera) SELECT DISTINCT carrera FROM alumnos;
+
+--Se agraga una nueva columna a la tabla alumnos
+ALTER TABLE alumnos ADD major INT;
+
+--La columna anterior se vuelve clave foranea
+ALTER TABLE alumnos ADD CONSTRAINT fk_carreras_alumnos
+FOREIGN KEY (major) REFERENCES testdb.carreras(idcarrera)
+/* alguna parte del codigo anterior me envia un error de definicion de variable
+no se porque, pero aun asi se ejecuta y funciona como queria*/
+;
+--Se ingresan las clave de las carreras a la tabla alumnos
+UPDATE alumnos SET major= 2001 WHERE carrera= "Programacion";
+UPDATE alumnos SET major= 2002 WHERE carrera= "Mecatronica"; 
+
+--Se elimina la columna noralizada
+ALTER  TABLE alumnos drop carrera;
+
+--Cambiar el nombre de la columna agregada al normalizar
+ALTER  TABLE alumnos RENAME COLUMN major TO carrera;
