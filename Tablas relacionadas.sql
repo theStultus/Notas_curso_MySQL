@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS assigments(
 --Eliminar clave foranea
 ALTER TABLE assigments DROP FOREIGN KEY fk_assigments_log;
 
---Crear clave foranea
+--Crear clave foranea con restricciones de modificacion
 ALTER TABLE assigments ADD CONSTRAINT fk_assigments_log 
     FOREIGN KEY (useditem) REFERENCES testdb.log(itemid)
     ON DELETE NO ACTION
@@ -87,3 +87,10 @@ SELECT CAST(momento AS TIME) FROM reportes;
 SELECT CONVERT(momento, TIME) from reportes;
 
 --Comandos SIGNED y UNSIGNED cambian las propiedades del signo
+SELECT CAST(1-2 AS UNSIGNED);
+SELECT CONVERT(1-2, SIGNED);
+--Usados en una tabla 
+CREATE TABLE datos(
+    a INT SIGNED,
+    b INT UNSIGNED
+);
